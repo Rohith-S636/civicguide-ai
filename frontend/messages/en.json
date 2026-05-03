@@ -1,0 +1,288 @@
+{
+  "nav": {
+    "home": "Home",
+    "chat": "Chat",
+    "quiz": "Quiz",
+    "flashcards": "Flashcards",
+    "simulation": "Simulation",
+    "learn": "Learn",
+    "news": "News",
+    "profile": "Profile",
+    "about": "About"
+  },
+  "languageSwitcher": {
+    "label": "Language",
+    "helper": "Switch the interface language"
+  },
+  "home": {
+    "title": "Learn Indian Democracy with Confidence",
+    "subtitle": "CivicGuide AI turns election literacy into an interactive journey.",
+    "description": "Understand voter registration, election forms, polling simulations, and constitutional rights through guided lessons in your language.",
+    "ctaPrimary": "Start Learning",
+    "ctaSecondary": "Explore the Platform"
+  },
+  "dashboard": {
+    "hero": {
+      "eyebrow": "Your civic learning dashboard",
+      "title": "Track your progress, keep your streak alive, and earn XP.",
+      "subtitle": "Pick up where you left off and focus on the next civic milestone.",
+      "description": "Review lessons, jump into a quick quiz, or explore the latest election updates from one place."
+    },
+    "sections": {
+      "continueLearning": "Continue Learning",
+      "progressSnapshot": "Progress Snapshot",
+      "featuredTools": "Featured Tools",
+      "electionPulse": "Election Pulse",
+      "upcomingElections": "Upcoming Elections",
+      "leaderboard": "Leaderboard",
+      "badges": "Badges",
+      "streak": "Learning Streak"
+    },
+    "cta": {
+      "resumeLearning": "Resume Learning",
+      "startQuiz": "Start a Quiz",
+      "openChat": "Ask the AI",
+      "exploreNews": "Explore News",
+      "viewLeaderboard": "View Leaderboard"
+    },
+    "stats": {
+      "xp": "Total XP",
+      "level": "Current Level",
+      "badges": "Badges Earned",
+      "streak": "Learning Streak"
+    }
+  },
+  "chat": {
+    "title": "Chat with CivicGuide AI",
+    "placeholder": "Ask about voter registration, election forms, or how Indian elections work...",
+    "suggestedQuestions": [
+      "How do I register as a voter?",
+      "Which form should I use to correct my details?",
+      "What happens inside a polling booth?",
+      "What is the Model Code of Conduct?",
+      "How does VVPAT help voters?"
+    ],
+    "quickTopics": {
+      "voterRegistration": "Voter Registration",
+      "forms": "Election Forms",
+      "votingProcess": "Voting Process",
+      "constitution": "Constitution Basics",
+      "news": "Election News"
+    },
+    "labels": {
+      "popularQuestions": "Popular Questions",
+      "conversationTips": "Conversation Tips",
+      "assistantReply": "Assistant Reply"
+    },
+    "errors": {
+      "emptyInput": "Please type a question before sending.",
+      "network": "We could not reach the civic assistant right now.",
+      "rateLimited": "You are sending questions too quickly. Please wait a moment.",
+      "voiceNotSupported": "Voice input is not supported in this browser."
+    }
+  },
+  "quiz": {
+    "title": "Quiz Mode",
+    "modes": {
+      "beginner": "Beginner",
+      "student": "Student",
+      "exam": "Exam Mode"
+    },
+    "buttons": {
+      "start": "Start Quiz",
+      "nextQuestion": "Next Question",
+      "previousQuestion": "Previous",
+      "submit": "Submit Quiz",
+      "retry": "Try Again",
+      "review": "Review Answers",
+      "browse": "Browse Resources"
+    },
+    "score": {
+      "title": "Your Score",
+      "correctAnswers": "Correct Answers",
+      "accuracy": "Accuracy",
+      "xpEarned": "XP Earned",
+      "timeTaken": "Time Taken",
+      "perfectScore": "Perfect score! You earned a bonus.",
+      "levelUp": "Level Up!",
+      "share": "Share Result",
+      "continueLearning": "Continue Learning"
+    },
+    "messages": {
+      "loading": "Loading questions...",
+      "chooseDifficulty": "Choose a difficulty level to begin.",
+      "chooseCategory": "Choose a category to focus your learning.",
+      "chooseLanguage": "Pick your preferred language.",
+      "quizComplete": "You finished the quiz.",
+      "quizRetry": "Try another round to improve your score."
+    }
+  },
+  "flashcard": {
+    "title": "Flashcards",
+    "navigation": {
+      "previous": "Previous",
+      "next": "Next",
+      "shuffle": "Shuffle",
+      "reset": "Reset",
+      "home": "Home"
+    },
+    "studyModes": {
+      "all": "All Cards",
+      "starred": "Starred Only",
+      "notLearned": "Not Learned",
+      "review": "Review",
+      "focus": "Focus"
+    },
+    "buttons": {
+      "revealAnswer": "Click to reveal answer",
+      "markStarred": "Star",
+      "markLearned": "Mark Learned"
+    },
+    "labels": {
+      "question": "Question",
+      "answer": "Answer",
+      "example": "Example",
+      "category": "Category",
+      "progress": "Progress"
+    }
+  },
+  "simulation": {
+    "title": "Polling Simulation",
+    "subtitle": "Experience the voting journey step by step.",
+    "stageLabel": "Stage",
+    "stages": {
+      "1": {
+        "title": "Before You Vote",
+        "instruction": "Check your name in the electoral roll and keep your voter ID ready."
+      },
+      "2": {
+        "title": "Find Your Booth",
+        "instruction": "Locate the correct polling booth using your constituency and booth slip."
+      },
+      "3": {
+        "title": "Arrive at the Booth",
+        "instruction": "Reach early, follow the queue, and stay calm as polling begins."
+      },
+      "4": {
+        "title": "Identity Verification",
+        "instruction": "Show your ID to the polling officer and confirm your name in the register."
+      },
+      "5": {
+        "title": "Cast Your Vote",
+        "instruction": "Use the EVM carefully and verify the VVPAT slip before leaving the machine."
+      },
+      "6": {
+        "title": "After Voting",
+        "instruction": "Listen for the indelible ink mark, collect guidance, and exit the booth respectfully."
+      },
+      "7": {
+        "title": "Counting Day",
+        "instruction": "Learn how votes are counted transparently under Election Commission supervision."
+      },
+      "8": {
+        "title": "Certificate & Celebration",
+        "instruction": "Download your completion certificate and share your civic achievement."
+      }
+    },
+    "instructions": {
+      "haveDocs": "Carry a valid voter ID or other accepted identity proof.",
+      "findBooth": "Use your constituency and booth details to locate the right station.",
+      "boothDistance": "Your nearest booth should be easy to reach on polling day.",
+      "showId": "Present your identity proof to the polling official.",
+      "serialNumber": "Check the serial number in the electoral roll register.",
+      "mistakes": "Avoid crowding, false claims, or incorrect button presses.",
+      "findName": "Find your name in the voter register before voting.",
+      "showYourId": "Show your ID when requested by the polling officer.",
+      "inkFinger": "Your finger will be marked with indelible ink after voting.",
+      "slipIssued": "A VVPAT slip is issued for verification after your vote.",
+      "indelibleFact": "The ink mark prevents double voting and supports election integrity.",
+      "voteSecret": "Your vote remains secret even when the VVPAT slip appears briefly.",
+      "afterThanks": "Thank you for participating in democracy responsibly.",
+      "countingExplain": "Counting takes place transparently in the presence of election observers.",
+      "certificateCongrats": "Congratulations on completing the civic simulation!",
+      "xpAward": "+50 XP earned for completing the simulation."
+    },
+    "actions": {
+      "download": "Download Certificate",
+      "share": "Share Result",
+      "next": "Next",
+      "back": "Back"
+    }
+  },
+  "learn": {
+    "title": "Learn",
+    "subtitle": "Choose a learning path that suits your pace.",
+    "quiz": "Quiz",
+    "flashcards": "Flashcards",
+    "simulation": "Polling Simulation",
+    "constitution": "Constitution Explorer"
+  },
+  "community": {
+    "title": "Community",
+    "news": "Election News",
+    "blogs": "Educational Blogs",
+    "discussions": "Discussions"
+  },
+  "profile": {
+    "title": "My Profile",
+    "xp": "Experience Points",
+    "level": "Level",
+    "badges": "Badges",
+    "settings": "Settings"
+  },
+  "about": {
+    "title": "About CivicGuide AI",
+    "mission": "Make civic learning clear, local, and engaging.",
+    "democracy": "India's democracy works best when voters are informed and confident.",
+    "voters": "We help voters understand forms, rights, and the polling process.",
+    "cta": "See how the platform works"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "success": "Success!",
+    "share": "Share",
+    "download": "Download",
+    "next": "Next",
+    "back": "Back",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit"
+  },
+  "title": "Polling Simulation",
+  "stage": "Stage",
+  "before": "Before You Vote",
+  "haveDocs": "Carry a valid voter ID or other accepted identity proof.",
+  "finding": "Finding Your Booth",
+  "findBooth": "Locate the correct polling booth using your constituency and booth slip.",
+  "boothDistance": "Your nearest booth should be easy to reach on polling day.",
+  "arriving": "Arriving at the Booth",
+  "showId": "Present your identity proof to the polling official.",
+  "serialNumber": "Check the serial number in the electoral roll register.",
+  "mistakes": "Avoid crowding, false claims, or incorrect button presses.",
+  "verification": "Identity Verification",
+  "findName": "Find your name in the voter register before voting.",
+  "showYourId": "Show your ID when requested by the polling officer.",
+  "inkFinger": "Your finger will be marked with indelible ink after voting.",
+  "slipIssued": "A VVPAT slip is issued for verification after your vote.",
+  "indelibleFact": "The ink mark prevents double voting and supports election integrity.",
+  "evm": "Cast Your Vote on the EVM",
+  "voteSecret": "Your vote remains secret even when the VVPAT slip appears briefly.",
+  "after": "After Voting",
+  "afterThanks": "Thank you for participating in democracy responsibly.",
+  "counting": "Counting Day",
+  "countingExplain": "Counting takes place transparently in the presence of election observers.",
+  "certificate": "Completion Certificate",
+  "certificateCongrats": "Congratulations on completing the civic simulation!",
+  "xpAward": "+50 XP earned for completing the simulation.",
+  "download": "Download Certificate",
+  "share": "Share Result",
+  "back": "Back",
+  "next": "Next",
+  "loading": "Loading...",
+  "error": "Something went wrong",
+  "success": "Success!",
+  "submit": "Submit"
+}

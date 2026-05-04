@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import html2canvas from 'html2canvas';
 import { toast } from 'sonner';
@@ -472,7 +473,13 @@ export default function SimulationPage() {
                     <p className="text-sm text-gray-600">{t('afterThanks')}</p>
 
                     <div className="mt-3">
-                      <img src={`https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent('vote-confirmed:'+ (idInput||'anonymous'))}&size=120x120`} alt="qr" />
+                      <Image
+                        src={`https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent('vote-confirmed:'+ (idInput||'anonymous'))}&size=120x120`}
+                        alt="qr"
+                        width={120}
+                        height={120}
+                        loading="lazy"
+                      />
                       <p className="text-xs text-gray-500 mt-2">QR to verify vote recorded (mock)</p>
                     </div>
                   </div>

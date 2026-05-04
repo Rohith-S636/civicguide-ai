@@ -34,7 +34,6 @@ export const XPNotificationToast = ({ onBadgeUnlocked }: XPNotificationProps) =>
 
       dismiss();
     }
-    return undefined;
   }, [show, xp, reason, dismiss]);
 
   // Toast notifications for badge unlocks
@@ -101,6 +100,8 @@ export const StandaloneXPNotification = ({
 
   // Add badge notifications
   useEffect(() => {
+    const timers: Array<ReturnType<typeof setTimeout>> = [];
+
     userBadges.forEach((badgeId) => {
       if (!displayedBadges.has(badgeId)) {
         const badge = BADGES[badgeId];
@@ -117,15 +118,18 @@ export const StandaloneXPNotification = ({
           const timer = setTimeout(() => {
             setNotifications((prev) => prev.filter((n) => n.id !== id));
           }, 3000);
+          timers.push(timer);
 
           if (onBadgeUnlocked) {
             onBadgeUnlocked(badgeId);
           }
-          return () => clearTimeout(timer);
         }
       }
     });
-    return undefined;
+
+    return () => {
+      timers.forEach((timer) => clearTimeout(timer));
+    };
   }, [userBadges, displayedBadges, onBadgeUnlocked]);
 
   const positionClasses = {

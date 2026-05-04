@@ -98,11 +98,18 @@ jobs:
     runs-on: ubuntu-latest
     needs: backend-check
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    env:
+      RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
     steps:
       - name: Trigger Render deployment
         run: |
+          if [ -z "$RENDER_DEPLOY_HOOK_URL" ]; then
+            echo "RENDER_DEPLOY_HOOK_URL is not set; skipping Render deploy trigger"
+            exit 0
+          fi
+
           curl --request POST \
-            --url "${{ secrets.RENDER_DEPLOY_HOOK_URL }}" \
+            --url "$RENDER_DEPLOY_HOOK_URL" \
             --header 'Content-Type: application/json' \
             --data '{"clearCache":"clear"}'
 

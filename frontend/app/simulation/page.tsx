@@ -150,8 +150,14 @@ export default function SimulationPage() {
   }, [stage]);
 
   const next = () => {
-    if (stage === 1 && !hasDocs) return toast('Please confirm you have your documents');
-    if (stage === 2 && !boothFound) return toast('Please find your polling booth');
+    if (stage === 1 && !hasDocs) {
+      toast('Please confirm you have your documents');
+      return;
+    }
+    if (stage === 2 && !boothFound) {
+      toast('Please find your polling booth');
+      return;
+    }
     if (stage < 8) setStage((s) => (s + 1) as Stage);
     if (stage === 7) {
       // moving to certificate

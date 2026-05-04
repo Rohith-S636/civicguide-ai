@@ -21,14 +21,14 @@ export function useApiQuery<T>(
   url: string,
   options?: UseQueryOptions<T, AxiosError<ApiErrorResponse>>
 ): UseQueryResult<T, AxiosError<ApiErrorResponse>> {
-  return useQuery<T, AxiosError<ApiErrorResponse>>(
+  return useQuery<T, AxiosError<ApiErrorResponse>>({
     queryKey,
-    async () => {
+    queryFn: async () => {
       const { data } = await apiClient.get<T>(url);
       return data;
     },
-    options
-  );
+    ...options,
+  });
 }
 
 export function useApiMutation<T = void, D = unknown>(

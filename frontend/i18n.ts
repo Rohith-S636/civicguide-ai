@@ -1,7 +1,1 @@
-import { getRequestConfig } from 'next-intl/server';
-
-export default getRequestConfig(async ({ locale }) => ({
-  messages: (await import(`./messages/${locale}.json`)).default,
-  timeZone: 'Asia/Kolkata',
-  now: new Date(),
-}));
+export { defaultLocale, getLocalizedPathname, getMessagesForLocale, localeFlags, localeLabels, locales, type Locale } from './lib/i18n';

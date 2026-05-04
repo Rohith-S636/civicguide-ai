@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useTranslations } from 'next-intl';
 import { PageWrapper } from '@/components/PageWrapper';
@@ -30,13 +30,9 @@ export default function QuizPage() {
     <PageWrapper
       title="Quiz Mode"
       description="Test your knowledge on Indian elections and civics"
-      breadcrumbs={[
-        { label: 'Learn', href: '/learn' },
-        { label: 'Quiz' },
-      ]}
+      breadcrumbs={[{ label: 'Learn', href: '/learn' }, { label: 'Quiz' }]}
     >
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Quiz Area */}
         <div className="lg:col-span-2">
           <Card>
             <CardHeader>
@@ -50,9 +46,7 @@ export default function QuizPage() {
               </div>
             </CardHeader>
             <CardContent>
-              <h2 className="text-2xl font-semibold mb-6 text-gray-900">
-                {currentQuestion.question}
-              </h2>
+              <h2 className="text-2xl font-semibold mb-6 text-gray-900">{currentQuestion.question}</h2>
 
               <div className="space-y-3 mb-6">
                 {currentQuestion.options.map((option, idx) => (
@@ -60,24 +54,14 @@ export default function QuizPage() {
                     key={idx}
                     onClick={() => handleAnswer(option)}
                     disabled={showResult}
-                    className={`w-full p-4 text-left rounded-lg border-2 transition-all ${
-                      selectedAnswer === option
-                        ? isCorrect
-                          ? 'border-india-green bg-green-50'
-                          : 'border-red-500 bg-red-50'
-                        : 'border-gray-200 hover:border-saffron'
-                    } ${showResult ? 'cursor-default' : 'cursor-pointer'}`}
+                    className={`w-full p-4 text-left rounded-lg border-2 transition-all ${selectedAnswer === option ? (isCorrect ? 'border-india-green bg-green-50' : 'border-red-500 bg-red-50') : 'border-gray-200 hover:border-saffron'} ${showResult ? 'cursor-default' : 'cursor-pointer'}`}
                   >
                     <div className="flex items-center justify-between">
                       <span className="font-medium text-gray-900">{option}</span>
                       {showResult && (
                         <>
-                          {option === currentQuestion.correctAnswer && (
-                            <Check className="w-5 h-5 text-india-green" />
-                          )}
-                          {selectedAnswer === option && !isCorrect && (
-                            <X className="w-5 h-5 text-red-500" />
-                          )}
+                          {option === currentQuestion.correctAnswer && <Check className="w-5 h-5 text-india-green" />}
+                          {selectedAnswer === option && !isCorrect && <X className="w-5 h-5 text-red-500" />}
                         </>
                       )}
                     </div>
@@ -87,39 +71,22 @@ export default function QuizPage() {
 
               {showResult && (
                 <div className={`p-4 rounded-lg mb-6 ${isCorrect ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
-                  <p className={`font-semibold ${isCorrect ? 'text-india-green' : 'text-red-600'}`}>
-                    {isCorrect ? '✓ Correct!' : '✗ Incorrect'}
-                  </p>
-                  <p className="text-sm text-gray-700 mt-2">
-                    The minimum age to vote in India is 18 years. You must be an Indian citizen and a registered voter to participate in elections.
-                  </p>
+                  <p className={`font-semibold ${isCorrect ? 'text-india-green' : 'text-red-600'}`}>{isCorrect ? '✓ Correct!' : '✗ Incorrect'}</p>
+                  <p className="text-sm text-gray-700 mt-2">The minimum age to vote in India is 18 years. You must be an Indian citizen and a registered voter to participate in elections.</p>
                   <p className="text-sm font-semibold text-gray-900 mt-3">+50 XP earned!</p>
                 </div>
               )}
 
               <div className="flex gap-3">
-                <Button
-                  variant="outline"
-                  className="gap-2"
-                >
-                  <Volume2 className="w-4 h-4" />
-                  Read Aloud
-                </Button>
+                <Button variant="outline" className="gap-2"><Volume2 className="w-4 h-4" />Read Aloud</Button>
                 {showResult && (
-                  <Button
-                    variant="default"
-                    className="ml-auto gap-2"
-                  >
-                    <RefreshCw className="w-4 h-4" />
-                    Next Question
-                  </Button>
+                  <Button variant="default" className="ml-auto gap-2"><RefreshCw className="w-4 h-4" />Next Question</Button>
                 )}
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Sidebar Stats */}
         <div className="space-y-4">
           <Card>
             <CardHeader>

@@ -1,5 +1,3 @@
-import { getRequestConfig } from 'next-intl/server';
-
 export const locales = ['en', 'hi', 'te', 'ta', 'kn'] as const;
 export type Locale = (typeof locales)[number];
 
@@ -40,12 +38,21 @@ export const getLocalizedPathname = (pathname: string, targetLocale: Locale) => 
   return normalizedBasePath === '/' ? `/${targetLocale}` : `/${targetLocale}${normalizedBasePath}`;
 };
 
-export default getRequestConfig(async ({ locale }: { locale?: string }) => {
-  const resolvedLocale = isLocale(locale ?? '') ? (locale as Locale) : defaultLocale;
+export async function getMessagesForLocale(locale: string) {
+  const resolvedLocale = isLocale(locale) ? locale : defaultLocale;
 
-  return {
-    locale: resolvedLocale,
-    messages: (await import(`../messages/${resolvedLocale}.json`)).default,
-  };
-});
-
+  switch (resolvedLocale) {
+    case 'en':
+      return (await import('../messages/en.json')).default;
+    case 'hi':
+      return (await import('../messages/hi.json')).default;
+    case 'te':
+      return (await import('../messages/te.json')).default;
+    case 'ta':
+      return (await import('../messages/ta.json')).default;
+    case 'kn':
+      return (await import('../messages/kn.json')).default;
+    default:
+      return (await import('../messages/en.json')).default;
+  }
+}

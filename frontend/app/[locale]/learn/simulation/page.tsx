@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useTranslations } from 'next-intl';
 import { PageWrapper } from '@/components/PageWrapper';
@@ -63,25 +63,15 @@ export default function SimulationPage() {
                     </CardTitle>
                     <CardDescription>{scenario.description}</CardDescription>
                   </div>
-                  <span className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${
-                    scenario.difficulty === 'Beginner'
-                      ? 'bg-green-100 text-india-green'
-                      : scenario.difficulty === 'Intermediate'
-                      ? 'bg-amber-100 text-amber-700'
-                      : 'bg-red-100 text-red-700'
-                  }`}>
+                  <span className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${scenario.difficulty === 'Beginner' ? 'bg-green-100 text-india-green' : scenario.difficulty === 'Intermediate' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'}`}>
                     {scenario.difficulty}
                   </span>
                 </div>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center justify-between">
-                  <div className="text-sm text-gray-600">
-                    ⏱️ {scenario.duration}
-                  </div>
-                  <Button variant="default" size="sm">
-                    Start Simulation
-                  </Button>
+                  <div className="text-sm text-gray-600">⏱️ {scenario.duration}</div>
+                  <Button variant="default" size="sm">Start Simulation</Button>
                 </div>
               </CardContent>
             </Card>

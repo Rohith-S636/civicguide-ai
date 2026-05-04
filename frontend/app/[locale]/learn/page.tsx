@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useTranslations } from 'next-intl';
 import { PageWrapper } from '@/components/PageWrapper';
@@ -81,7 +81,6 @@ export default function LearnPage() {
         })}
       </div>
 
-      {/* Info Section */}
       <Card className="bg-white border-gray-200">
         <CardHeader>
           <CardTitle>Learning Path</CardTitle>

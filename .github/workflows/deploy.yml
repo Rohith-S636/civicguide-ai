@@ -26,7 +26,7 @@ jobs:
           node-version: '18'
 
       - name: Install dependencies
-        run: cd frontend && npm install
+        run: cd frontend && npm ci
 
       - name: Run ESLint
         run: cd frontend && npm run lint || true
@@ -81,17 +81,6 @@ jobs:
           scope: ${{ secrets.VERCEL_ORG_ID }}
           production: true
 
-      - name: Comment PR with deployment URL
-        if: github.event_name == 'pull_request'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: `🚀 Frontend deployed to: ${{ steps.vercel.outputs.preview-url }}`
-            })
 
   deploy-backend:
     name: Deploy Backend to Render

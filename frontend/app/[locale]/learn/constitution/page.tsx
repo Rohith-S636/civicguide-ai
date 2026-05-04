@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useTranslations } from 'next-intl';
 import { PageWrapper } from '@/components/PageWrapper';
@@ -80,27 +80,15 @@ export default function ConstitutionPage() {
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap gap-3">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="gap-2"
-                >
+                <Button variant="outline" size="sm" className="gap-2">
                   <BookOpen className="w-4 h-4" />
                   Read
                 </Button>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  className="gap-2"
-                >
+                <Button variant="secondary" size="sm" className="gap-2">
                   <PlayCircle className="w-4 h-4" />
                   Watch Video
                 </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="gap-2"
-                >
+                <Button variant="ghost" size="sm" className="gap-2">
                   <Download className="w-4 h-4" />
                   Download PDF
                 </Button>

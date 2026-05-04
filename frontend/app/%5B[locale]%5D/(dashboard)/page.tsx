@@ -505,7 +505,6 @@ export default function DashboardPage() {
                   key={idx}
                   variants={itemVariants}
                   whileHover={{ scale: 1.02 }}
-                  asChild
                 >
                   <Link href={feature.href}>
                     <div className="group relative overflow-hidden rounded-xl p-6 text-white cursor-pointer shadow-civic-md hover:shadow-civic-lg transition-all">

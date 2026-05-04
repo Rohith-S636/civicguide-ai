@@ -7,7 +7,7 @@ import { LEVEL_TITLES, LEVEL_COLORS } from "@/lib/gamification/xp-rules";
 import { useLocale } from "next-intl";
 import { ChevronLeft, ChevronRight, Trophy, Loader } from "lucide-react";
 
-interface LeaderboardUser {
+export interface LeaderboardUser {
   rank: number;
   username: string;
   xp: number;

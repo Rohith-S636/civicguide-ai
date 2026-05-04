@@ -17,18 +17,18 @@ export interface ApiErrorResponse {
 }
 
 export function useApiQuery<T>(
-  queryKey: readonly string[],
+  queryKey: readonly unknown[],
   url: string,
-  options?: Omit<UseQueryOptions<T, AxiosError<ApiErrorResponse>, T, readonly string[]>, 'queryKey' | 'queryFn'>
+  options?: UseQueryOptions<T, AxiosError<ApiErrorResponse>>
 ): UseQueryResult<T, AxiosError<ApiErrorResponse>> {
-  return useQuery<T, AxiosError<ApiErrorResponse>>({
+  return useQuery<T, AxiosError<ApiErrorResponse>>(
     queryKey,
-    queryFn: async () => {
+    async () => {
       const { data } = await apiClient.get<T>(url);
       return data;
     },
-    ...options,
-  });
+    options
+  );
 }
 
 export function useApiMutation<T = void, D = unknown>(

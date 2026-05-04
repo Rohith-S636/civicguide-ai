@@ -34,6 +34,7 @@ export const XPNotificationToast = ({ onBadgeUnlocked }: XPNotificationProps) =>
 
       dismiss();
     }
+    return undefined;
   }, [show, xp, reason, dismiss]);
 
   // Toast notifications for badge unlocks
@@ -56,6 +57,7 @@ export const XPNotificationToast = ({ onBadgeUnlocked }: XPNotificationProps) =>
         }
       }
     });
+    return undefined;
   }, [badges, displayedBadges, onBadgeUnlocked]);
 
   return null; // Sonner handles rendering
@@ -94,6 +96,7 @@ export const StandaloneXPNotification = ({
 
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [show, xp, reason, dismiss]);
 
   // Add badge notifications
@@ -118,11 +121,11 @@ export const StandaloneXPNotification = ({
           if (onBadgeUnlocked) {
             onBadgeUnlocked(badgeId);
           }
-
           return () => clearTimeout(timer);
         }
       }
     });
+    return undefined;
   }, [userBadges, displayedBadges, onBadgeUnlocked]);
 
   const positionClasses = {

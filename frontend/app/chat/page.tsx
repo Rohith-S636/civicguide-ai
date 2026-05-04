@@ -23,6 +23,7 @@ import {
   Menu,
   X,
 } from 'lucide-react';
+import { MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -150,7 +151,7 @@ const MessageBubble: React.FC<{
                   strong: ({ node, ...props }) => (
                     <strong className="font-semibold text-india-green" {...props} />
                   ),
-                  code: ({ node, inline, ...props }) => (
+                  code: ({ node, inline, ...props }: any) => (
                     <code
                       className={
                         inline

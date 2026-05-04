@@ -40,8 +40,8 @@ export const getLocalizedPathname = (pathname: string, targetLocale: Locale) => 
   return normalizedBasePath === '/' ? `/${targetLocale}` : `/${targetLocale}${normalizedBasePath}`;
 };
 
-export default getRequestConfig(async ({ locale }) => {
-  const resolvedLocale = isLocale(locale) ? locale : defaultLocale;
+export default getRequestConfig(async ({ locale }: { locale?: string }) => {
+  const resolvedLocale = isLocale(locale ?? '') ? (locale as Locale) : defaultLocale;
 
   return {
     locale: resolvedLocale,

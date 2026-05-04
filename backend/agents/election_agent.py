@@ -2,7 +2,7 @@ import re
 import asyncio
 from typing import List, Dict, Any, Optional, Tuple
 
-from backend.utils.claude import anthropic_chat
+from backend.utils.gemini import gemini_chat, get_credit_status
 from backend.utils.supabase import upsert_user_progress
 
 # System prompt
@@ -89,7 +89,7 @@ KNOWLEDGE_BASE: List[Dict[str, Any]] = [
 
 
 class ElectionAgent:
-    def __init__(self, model: str = 'claude-sonnet-4-20250514'):
+    def __init__(self, model: str = 'gemini-1.5-flash'):
         self.model = model
 
     async def get_election_info(self, query: str) -> List[Dict[str, Any]]:
@@ -207,11 +207,15 @@ class ElectionAgent:
 
         prompt = "\n\n".join(prompt_parts)
 
-        # Call Anthropic/Claude via helper
-        reply = await anthropic_chat(prompt, history or [], lang)
+        # Call Gemini API via helper
+        reply, credit_status = await gemini_chat(prompt, history or [], lang)
 
-        # Determine XP: longer or complex questions get 10
-        xp = 10 if len(question) > 200 or (len(kb_hits) > 2) else 5
+        # Check if we're over limit
+        if credit_status.get("is_over_limit"):
+            xp = 0  # No XP if API is over limit
+        else:
+            # Determine XP: longer or complex questions get 10
+            xp = 10 if len(question) > 200 or (len(kb_hits) > 2) else 5
 
         # Save to Supabase if session_id provided (store last chat snippet and xp)
         if session_id:
@@ -229,52 +233,3 @@ class ElectionAgent:
 
 
 __all__ = ['ElectionAgent']
-"""
-Election AI Agent - Main conversational AI for civics and election queries
-"""
-from anthropic import Anthropic
-
-class ElectionAgent:
-    def __init__(self):
-        self.client = Anthropic()
-        self.conversation_history = []
-        self.system_prompt = """You are CivicGuide, an expert AI assistant about Indian elections, civic engagement, 
-        and democratic processes. You provide accurate, helpful information about:
-        - Indian electoral system and voting procedures
-        - Constitutional rights and duties
-        - Election Commission of India (ECI) guidelines
-        - Civic engagement and community participation
-        - Election forms and procedures
-        
-        Always provide factual, non-biased information and cite sources when available."""
-
-    def process_message(self, user_message: str) -> str:
-        """
-        Process user message and return AI response
-        """
-        try:
-            self.conversation_history.append({
-                "role": "user",
-                "content": user_message
-            })
-
-            response = self.client.messages.create(
-                model="claude-3-5-sonnet-20241022",
-                max_tokens=1024,
-                system=self.system_prompt,
-                messages=self.conversation_history
-            )
-
-            assistant_message = response.content[0].text
-            self.conversation_history.append({
-                "role": "assistant",
-                "content": assistant_message
-            })
-
-            return assistant_message
-        except Exception as e:
-            return f"Error processing message: {str(e)}"
-
-    def reset_conversation(self):
-        """Reset conversation history"""
-        self.conversation_history = []

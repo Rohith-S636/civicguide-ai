@@ -1,7 +1,7 @@
 import json
 import re
 from typing import List, Dict, Any, Optional, Tuple
-from backend.utils.claude import anthropic_chat
+from backend.utils.gemini import gemini_chat
 
 # Topic descriptions for Claude prompts
 TOPIC_DESCRIPTIONS = {
@@ -84,7 +84,7 @@ FALLBACK_QUIZ_BANK: List[Dict[str, Any]] = [
 
 
 class QuizAgent:
-    def __init__(self, model: str = 'claude-sonnet-4-20250514'):
+    def __init__(self, model: str = 'gemini-1.5-flash'):
         self.model = model
 
     async def generate_questions(
@@ -97,10 +97,10 @@ class QuizAgent:
         """Generate quiz questions using Claude, with fallback to static bank."""
         try:
             # Try to generate via Claude
-            questions = await self._generate_via_claude(topic, difficulty, language, count)
+            questions = await self._generate_via_gemini(topic, difficulty, language, count)
         except Exception as e:
             # Fallback to static bank
-            print(f"Claude generation failed: {e}. Using fallback bank.")
+            print(f"Gemini generation failed: {e}. Using fallback bank.")
             questions = self._get_fallback_questions(topic, difficulty, count)
 
         # Calculate total XP
@@ -113,14 +113,14 @@ class QuizAgent:
             "total_xp": total_xp,
         }
 
-    async def _generate_via_claude(
+    async def _generate_via_gemini(
         self,
         topic: str,
         difficulty: str,
         language: str,
         count: int,
     ) -> List[Dict[str, Any]]:
-        """Call Claude to generate questions."""
+        """Call Gemini to generate questions."""
         topic_desc = TOPIC_DESCRIPTIONS.get(topic, topic)
         diff_desc = DIFFICULTY_DESCRIPTIONS.get(difficulty, difficulty)
 
@@ -152,7 +152,11 @@ Ensure:
 
 Return the JSON array only, no other text."""
 
-        reply = await anthropic_chat(prompt, [], language)
+        reply, status = await gemini_chat(prompt, [], language)
+
+        # Check if over limit
+        if status.get("is_over_limit"):
+            raise Exception(f"Gemini API limit exceeded: {status['status_message']}")
 
         # Extract JSON from reply
         try:
@@ -169,11 +173,11 @@ Return the JSON array only, no other text."""
                 if json_match:
                     questions = json.loads(json_match.group(0))
                 else:
-                    raise ValueError("No valid JSON found in Claude response")
+                    raise ValueError("No valid JSON found in Gemini response")
 
         # Validate structure
         if not isinstance(questions, list):
-            raise ValueError("Claude response is not a list")
+            raise ValueError("Gemini response is not a list")
 
         for q in questions:
             if not all(k in q for k in ['question', 'options', 'correct_index']):

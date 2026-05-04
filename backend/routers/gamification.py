@@ -7,7 +7,7 @@ from datetime import datetime
 from typing import List, Optional
 from pydantic import BaseModel
 
-from backend.utils.gamification import (
+from utils.gamification import (
     calculate_xp_for_quiz,
     calculate_level_from_xp,
     check_badge_unlocks,

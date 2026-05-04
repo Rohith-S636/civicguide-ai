@@ -76,20 +76,25 @@ async def generate_quiz_questions(topic: Optional[str], difficulty: str = 'begin
 """
 Claude AI utilities
 """
-from anthropic import Anthropic
+# Safe Anthropic helpers — import lazily and fall back to mocks when SDK or API key
 import os
 
-api_key = os.getenv("ANTHROPIC_API_KEY")
-
 def create_client():
-    """Create Anthropic client"""
+    api_key = os.getenv("ANTHROPIC_API_KEY")
+    if api_key is None:
+        return None
+    try:
+        # Import when needed to avoid hard dependency at module import time
+        from anthropic import Anthropic
+    except Exception:
+        return None
     return Anthropic(api_key=api_key)
 
+
 def generate_response(prompt: str, system_prompt: str = "", model: str = "claude-3-5-sonnet-20241022") -> str:
-    """
-    Generate a response using Claude
-    """
     client = create_client()
+    if client is None:
+        return f"(mock claude) {prompt[:200]}"
     try:
         response = client.messages.create(
             model=model,
@@ -97,6 +102,12 @@ def generate_response(prompt: str, system_prompt: str = "", model: str = "claude
             system=system_prompt,
             messages=[{"role": "user", "content": prompt}]
         )
-        return response.content[0].text
+        # Best-effort extract
+        if isinstance(response, dict):
+            content = response.get('content')
+            if content and isinstance(content, list) and len(content) > 0:
+                return content[0].get('text', '')
+            return ''
+        return getattr(response, 'content', [{}])[0].get('text', '')
     except Exception as e:
         return f"Error generating response: {str(e)}"

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from typing import Any
-from backend.utils.supabase import get_user_progress, upsert_user_progress
-from backend.models.schemas import UserProgress
+from utils.supabase import get_user_progress, upsert_user_progress
+from models.schemas import UserProgress
 
 router = APIRouter()
 

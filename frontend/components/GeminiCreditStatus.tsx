@@ -163,7 +163,7 @@ export default function GeminiCreditStatus() {
           </div>
           <Badge
             variant="outline"
-            className={creditStatus.is_over_limit ? 'bg-red-100 text-red-800' : creditStatus.is_warning ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}
+            className={creditStatus.is_over_limit ? 'border-red-300 text-red-800' : creditStatus.is_warning ? 'border-yellow-300 text-yellow-800' : 'border-green-300 text-green-800'}
           >
             {creditStatus.requests_used} / {creditStatus.requests_limit}
           </Badge>

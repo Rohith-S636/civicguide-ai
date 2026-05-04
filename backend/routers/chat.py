@@ -6,8 +6,8 @@ import json
 import asyncio
 from typing import List, Optional
 
-from backend.models.schemas import ChatRequest, ChatResponse
-from backend.agents.election_agent import ElectionAgent
+from models.schemas import ChatRequest, ChatResponse
+from agents.election_agent import ElectionAgent
 
 router = APIRouter()
 limiter = Limiter(key_func=get_remote_address)

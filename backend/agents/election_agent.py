@@ -2,8 +2,8 @@ import re
 import asyncio
 from typing import List, Dict, Any, Optional, Tuple
 
-from backend.utils.gemini import gemini_chat, get_credit_status
-from backend.utils.supabase import upsert_user_progress
+from utils.gemini import gemini_chat, get_credit_status
+from utils.supabase import upsert_user_progress
 
 # System prompt
 SYSTEM_PROMPT = (

@@ -2,9 +2,9 @@ from fastapi import APIRouter, Query, HTTPException, Request
 from typing import List, Dict, Any, Optional
 import json
 
-from backend.models.schemas import QuizRequest, QuizQuestion
-from backend.agents.quiz_agent import QuizAgent
-from backend.utils.supabase import upsert_user_progress
+from models.schemas import QuizRequest, QuizQuestion
+from agents.quiz_agent import QuizAgent
+from utils.supabase import upsert_user_progress
 
 router = APIRouter()
 
@@ -99,11 +99,3 @@ async def submit_quiz_score(
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to submit quiz: {str(e)}")
-
-    Submit answer to a quiz question
-    """
-    try:
-        # Implementation will validate answer and update user XP
-        return {"correct": True, "explanation": ""}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))

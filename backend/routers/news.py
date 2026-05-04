@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Query, HTTPException
+from fastapi import APIRouter, Query, HTTPException, Path
 from typing import List, Dict, Any, Optional
 from datetime import datetime, timedelta
 import os
@@ -12,7 +12,7 @@ except ImportError:
     TavilyClient = None
 
 # Import Claude for summarization
-from backend.utils.claude import anthropic_chat
+from utils.claude import anthropic_chat
 
 router = APIRouter()
 
@@ -638,7 +638,7 @@ async def get_announcements(limit: int = Query(10, ge=1, le=50)) -> List[Dict[st
 
 @router.get("/by-category/{category}", response_model=List[Dict[str, Any]])
 async def get_news_by_category(
-    category: str = Query(..., description="News category"),
+    category: str = Path(..., description="News category"),
     limit: int = Query(10, ge=1, le=50)
 ) -> List[Dict[str, Any]]:
     """

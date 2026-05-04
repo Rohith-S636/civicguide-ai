@@ -1,7 +1,7 @@
 import json
 import re
 from typing import List, Dict, Any, Optional, Tuple
-from backend.utils.gemini import gemini_chat
+from utils.gemini import gemini_chat
 
 # Topic descriptions for Claude prompts
 TOPIC_DESCRIPTIONS = {

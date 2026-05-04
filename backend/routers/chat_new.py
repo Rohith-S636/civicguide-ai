@@ -17,8 +17,8 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 import asyncio
 
-from backend.agents.election_agent import run_election_agent
-from backend.utils.gemini import generate_chat_response, stream_chat_response, get_credit_status
+from agents.election_agent import run_election_agent
+from utils.gemini import generate_chat_response, stream_chat_response, get_credit_status
 
 logger = logging.getLogger(__name__)
 

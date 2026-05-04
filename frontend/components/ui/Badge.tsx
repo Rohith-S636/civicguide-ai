@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils"
 const Badge = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement> & {
-    variant?: 'default' | 'secondary' | 'success' | 'warning' | 'danger'
+    variant?: 'default' | 'secondary' | 'success' | 'warning' | 'danger' | 'outline'
   }
 >(({ className, variant = 'default', ...props }, ref) => (
   <div
@@ -17,6 +17,7 @@ const Badge = React.forwardRef<
         'bg-green-100 text-green-700': variant === 'success',
         'bg-amber-100 text-amber-700': variant === 'warning',
         'bg-red-100 text-red-700': variant === 'danger',
+        'border border-gray-300 bg-white text-gray-900': variant === 'outline',
       },
       className
     )}

@@ -61,43 +61,42 @@ async def upsert_user_progress(user_id: str, payload: dict) -> dict:
 
     res = await asyncio.to_thread(_upsert)
     return getattr(res, 'data', res)
-"""
-Supabase utilities for database operations
-"""
-from supabase import create_client, Client
-import os
 
-url = os.getenv("SUPABASE_URL")
-key = os.getenv("SUPABASE_SERVICE_KEY")
 
-supabase: Client = create_client(url, key)
+# Safe synchronous helpers that use the lazy client. These functions gracefully
+# fall back to mock data when SUPABASE_URL / keys are not provided so importing
+# the module doesn't fail in dev or CI.
 
 def get_user(user_id: str):
-    """Fetch user profile from database"""
+    client = _init_client()
+    if client is None:
+        return None
     try:
-        response = supabase.table("users").select("*").eq("id", user_id).execute()
-        return response.data[0] if response.data else None
-    except Exception as e:
-        print(f"Error fetching user: {str(e)}")
+        res = client.table("users").select("*").eq("id", user_id).execute()
+        return getattr(res, 'data', None)[0] if getattr(res, 'data', None) else None
+    except Exception:
         return None
 
+
 def update_user_xp(user_id: str, xp_gained: int):
-    """Update user XP"""
+    client = _init_client()
+    if client is None:
+        return False
     try:
-        response = supabase.table("users").select("xp").eq("id", user_id).execute()
-        current_xp = response.data[0]["xp"] if response.data else 0
-        
-        supabase.table("users").update({"xp": current_xp + xp_gained}).eq("id", user_id).execute()
+        resp = client.table("users").select("xp").eq("id", user_id).execute()
+        current_xp = getattr(resp, 'data', [{}])[0].get('xp', 0) if getattr(resp, 'data', None) else 0
+        client.table("users").update({"xp": current_xp + xp_gained}).eq("id", user_id).execute()
         return True
-    except Exception as e:
-        print(f"Error updating XP: {str(e)}")
+    except Exception:
         return False
 
+
 def get_leaderboard(limit: int = 10):
-    """Get top users by XP"""
+    client = _init_client()
+    if client is None:
+        return []
     try:
-        response = supabase.table("users").select("*").order("xp", desc=True).limit(limit).execute()
-        return response.data
-    except Exception as e:
-        print(f"Error fetching leaderboard: {str(e)}")
+        resp = client.table("users").select("*").order("xp", desc=True).limit(limit).execute()
+        return getattr(resp, 'data', [])
+    except Exception:
         return []

@@ -38,8 +38,8 @@ export default async function LocaleLayout({
     notFound();
   }
 
-  const messages = await getMessages();
   const resolvedLocale = (locales.includes(locale as Locale) ? locale : defaultLocale) as Locale;
+  const messages = await getMessages(resolvedLocale);
 
   return (
     <NextIntlClientProvider locale={resolvedLocale} messages={messages}>

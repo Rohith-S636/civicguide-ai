@@ -20,7 +20,7 @@ from langchain.prompts import PromptTemplate
 from langchain.tools import Tool
 from langchain.memory import ConversationBufferMemory
 
-from backend.utils.gemini import get_credit_status
+from utils.gemini import get_credit_status
 
 logger = logging.getLogger(__name__)
 

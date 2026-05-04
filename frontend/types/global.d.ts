@@ -10,5 +10,6 @@ declare module '@/components/ui/*';
 // relax next-intl missing exports by adding minimal types
 declare module 'next-intl/server' {
   export function getMessages(locale: string): Promise<Record<string, string>>;
-  export function getRequestConfig(): any;
+  // Accept a handler fn returning config; keep any for flexibility
+  export function getRequestConfig(handler: (ctx?: any) => any): any;
 }

@@ -194,7 +194,7 @@ export default function SimulationPage() {
     if (!certRef.current) return;
     try {
       const canvas = await html2canvas(certRef.current, { scale: 2 });
-      canvas.toBlob((blob) => {
+      canvas.toBlob((blob: Blob | null) => {
         if (!blob) return;
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');

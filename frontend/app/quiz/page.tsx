@@ -471,7 +471,8 @@ export default function QuizPage() {
                       key={lang.code}
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      onClick={() => setSelectedLanguage(lang.code as any)}
+                      onClick={() => setSelectedLanguage(lang.code as 'en' | 'hi' | 'te' | 'ta')}
+                      aria-label={`Select ${lang.label} quiz language`}
                       className={`p-3 rounded-lg border-2 font-medium transition-all ${
                         selectedLanguage === lang.code
                           ? 'border-navy bg-gradient-civic-light text-navy'

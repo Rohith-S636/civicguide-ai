@@ -21,9 +21,7 @@ export const localeFlags: Record<Locale, string> = {
   kn: '🇮🇳',
 };
 
-const isLocale = (value: string): value is Locale => {
-  return (locales as readonly string[]).includes(value);
-};
+const isLocale = (value: string): value is Locale => locales.includes(value as Locale);
 
 export const getLocalizedPathname = (pathname: string, targetLocale: Locale) => {
   const segments = pathname.split('/').filter(Boolean);
@@ -49,31 +47,5 @@ export default getRequestConfig(async ({ locale }) => {
     locale: resolvedLocale,
     messages: (await import(`../messages/${resolvedLocale}.json`)).default,
   };
-});// Internationalization (i18n) configuration
-export const languages = {
-  en: 'English',
-  hi: 'हिंदी',
-  ta: 'தமிழ்',
-  te: 'తెలుగు',
-  kn: 'ಕನ್ನಡ',
-  ml: 'മലയാളം',
-  gu: 'ગુજરાતી',
-  mr: 'मराठी',
-};
+});
 
-export type Language = keyof typeof languages;
-
-export const defaultLanguage: Language = 'en';
-
-export const getLocaleMessages = (locale: Language) => {
-  // Import messages based on locale
-  // This can be extended with actual translations
-  return {
-    dashboard: 'Dashboard',
-    quiz: 'Quiz',
-    chat: 'Chat',
-    learn: 'Learn',
-    profile: 'Profile',
-    news: 'News',
-  };
-};

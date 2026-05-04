@@ -464,6 +464,15 @@ export default function FlashcardsPage() {
                 exit={{ opacity: 0, rotateY: -180 }}
                 transition={{ duration: 0.5 }}
                 onClick={toggleFlip}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    toggleFlip();
+                  }
+                }}
+                role="button"
+                tabIndex={0}
+                aria-label="Flip flashcard"
                 style={{ perspective: '1000px' }}
               >
                 {/* 3D Card Flip */}
@@ -506,7 +515,7 @@ export default function FlashcardsPage() {
                         <p className="text-sm font-semibold opacity-75 mb-2 uppercase tracking-wide">
                           Answer
                         </p>
-                        <p className="text-xl md:text-2xl font-semibold leading-relaxed">
+                        <p className="text-xl md:text-2xl font-semibold leading-relaxed break-words">
                           {currentFilteredCard.definition}
                         </p>
                       </div>
@@ -516,7 +525,7 @@ export default function FlashcardsPage() {
                           <p className="text-sm font-semibold opacity-75 mb-2 uppercase tracking-wide">
                             Example
                           </p>
-                          <p className="text-base opacity-90 italic">
+                          <p className="text-base opacity-90 italic break-words">
                             "{currentFilteredCard.example}"
                           </p>
                         </div>
@@ -557,6 +566,7 @@ export default function FlashcardsPage() {
               size="sm"
               onClick={() => toggleStar(currentFilteredCard.id)}
               className="gap-2"
+              aria-label={currentSession?.starredCards.includes(currentFilteredCard.id) ? 'Remove star from flashcard' : 'Star flashcard'}
             >
               <Star
                 className={`w-4 h-4 ${
@@ -582,6 +592,7 @@ export default function FlashcardsPage() {
                 );
               }}
               className="gap-2"
+              aria-label={currentSession?.learnedCards.includes(currentFilteredCard.id) ? 'Mark flashcard as learning' : 'Mark flashcard as learned'}
             >
               <CheckCircle
                 className={`w-4 h-4 ${
@@ -600,6 +611,7 @@ export default function FlashcardsPage() {
               size="sm"
               onClick={shuffleCards}
               className="gap-2"
+              aria-label="Shuffle flashcards"
             >
               <Shuffle className="w-4 h-4" />
               Shuffle
@@ -621,6 +633,7 @@ export default function FlashcardsPage() {
               onClick={previousCard}
               disabled={progress.current === 1}
               className="gap-2"
+              aria-label="Previous flashcard"
             >
               <ChevronLeft className="w-5 h-5" />
               Previous
@@ -639,6 +652,7 @@ export default function FlashcardsPage() {
               onClick={nextCard}
               disabled={progress.current === progress.total}
               className="gap-2"
+              aria-label="Next flashcard"
             >
               Next
               <ChevronRight className="w-5 h-5" />

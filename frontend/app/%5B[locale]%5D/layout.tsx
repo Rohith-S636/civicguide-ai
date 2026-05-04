@@ -1,12 +1,30 @@
 import type { ReactNode } from 'react';
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
-import { defaultLocale, locales, type Locale } from '@/lib/i18n';
+import { defaultLocale, localeLabels, locales, type Locale } from '@/lib/i18n';
 
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
+}
+
+export async function generateMetadata({
+  params: { locale },
+}: {
+  params: { locale: string };
+}): Promise<Metadata> {
+  const resolvedLocale = locales.includes(locale as Locale) ? (locale as Locale) : defaultLocale;
+  const localeName = localeLabels[resolvedLocale];
+
+  return {
+    title: `${localeName} Resources`,
+    description: `Learn about Indian elections and civic participation in ${localeName}.`,
+    alternates: {
+      canonical: `/${resolvedLocale === defaultLocale ? '' : resolvedLocale}`,
+    },
+  };
 }
 
 export default async function LocaleLayout({

@@ -239,7 +239,12 @@ export default function SimulationPage() {
           </div>
 
           <div className="flex items-center gap-2">
-            <select value={lang} onChange={(e) => setLang(e.target.value as any)} className="border rounded px-2 py-1">
+            <select
+              value={lang}
+              onChange={(e) => setLang(e.target.value as 'en' | 'hi' | 'te' | 'ta')}
+              className="border rounded px-2 py-1"
+              aria-label="Select simulation language"
+            >
               <option value="en">EN</option>
               <option value="hi">HI</option>
               <option value="te">TE</option>
@@ -268,7 +273,14 @@ export default function SimulationPage() {
                   ))}
                 </div>
                 <label className="inline-flex items-center gap-2 mt-2">
-                  <input type="checkbox" checked={hasDocs} onChange={(e) => setHasDocs(e.target.checked)} className="w-5 h-5" />
+                  <input
+                    id="has-docs"
+                    type="checkbox"
+                    checked={hasDocs}
+                    onChange={(e) => setHasDocs(e.target.checked)}
+                    className="w-5 h-5"
+                    aria-label="I have my documents"
+                  />
                   <span className="ml-2">{t('haveDocs')}</span>
                 </label>
               </motion.section>
@@ -279,8 +291,30 @@ export default function SimulationPage() {
                 <h2 className="text-xl font-semibold mb-4">{t('finding')}</h2>
                 <p className="text-sm text-gray-700 mb-4">{t('findBooth')}</p>
                 <div className="flex gap-2 mb-4">
-                  <input value={idInput} onChange={(e) => setIdInput(e.target.value)} placeholder="EPIC / Aadhaar" className="flex-1 border rounded px-3 py-2" />
-                  <button onClick={findBooth} className="px-4 py-2 rounded bg-saffron text-white">Find</button>
+                  <div className="flex-1">
+                    <label htmlFor="id-input" className="sr-only">
+                      EPIC or Aadhaar number
+                    </label>
+                    <input
+                      id="id-input"
+                      value={idInput}
+                      onChange={(e) => setIdInput(e.target.value)}
+                      placeholder="EPIC / Aadhaar"
+                      inputMode="text"
+                      autoComplete="off"
+                      minLength={3}
+                      pattern="[A-Za-z0-9\-\s]{3,}"
+                      className="w-full border rounded px-3 py-2"
+                      aria-describedby="id-input-help"
+                      aria-invalid={idInput.length > 0 && idInput.trim().length < 3}
+                    />
+                    <p id="id-input-help" className="sr-only">
+                      Enter a voter ID or Aadhaar reference to look up the polling booth.
+                    </p>
+                  </div>
+                  <button onClick={findBooth} className="px-4 py-2 rounded bg-saffron text-white" aria-label="Find polling booth">
+                    Find
+                  </button>
                 </div>
 
                 {boothFound && (
@@ -378,7 +412,13 @@ export default function SimulationPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-3">
                     {mockCandidates.map((c) => (
-                      <button key={c.id} onClick={() => handleVote(c.id)} disabled={voted} className={`w-full text-left p-3 rounded border ${selectedCandidate===c.id? 'bg-green-50 border-green-300':'bg-white border-gray-200'} hover:bg-gray-50`}>
+                      <button
+                        key={c.id}
+                        onClick={() => handleVote(c.id)}
+                        disabled={voted}
+                        className={`w-full text-left p-3 rounded border ${selectedCandidate===c.id? 'bg-green-50 border-green-300':'bg-white border-gray-200'} hover:bg-gray-50`}
+                        aria-label={`Vote for ${c.name}`}
+                      >
                         <div className="flex items-center justify-between">
                           <div>
                             <div className="font-semibold">{c.name}</div>
@@ -485,8 +525,8 @@ export default function SimulationPage() {
                 </div>
 
                 <div className="mt-6 flex items-center justify-center gap-3">
-                  <button onClick={downloadCertificate} className="px-4 py-2 bg-white border rounded flex items-center gap-2"><Download className="w-4 h-4" /> {t('download')}</button>
-                  <button onClick={shareCertificate} className="px-4 py-2 bg-saffron text-white rounded flex items-center gap-2"><Share2 className="w-4 h-4" /> {t('share')}</button>
+                  <button onClick={downloadCertificate} className="px-4 py-2 bg-white border rounded flex items-center gap-2" aria-label="Download certificate as image"><Download className="w-4 h-4" aria-hidden="true" /> {t('download')}</button>
+                  <button onClick={shareCertificate} className="px-4 py-2 bg-saffron text-white rounded flex items-center gap-2" aria-label="Share certificate"><Share2 className="w-4 h-4" aria-hidden="true" /> {t('share')}</button>
                 </div>
               </motion.section>
             )}
@@ -496,12 +536,12 @@ export default function SimulationPage() {
         {/* Navigation */}
         <footer className="mt-6 flex items-center justify-between">
           <div>
-            <button onClick={back} disabled={stage===1} className="px-3 py-2 rounded border flex items-center gap-2" aria-disabled={stage===1}><ArrowLeft className="w-4 h-4" /> {t('back')}</button>
+            <button onClick={back} disabled={stage===1} className="px-3 py-2 rounded border flex items-center gap-2" aria-disabled={stage===1} aria-label="Previous stage"><ArrowLeft className="w-4 h-4" aria-hidden="true" /> {t('back')}</button>
           </div>
 
           <div className="flex items-center gap-3">
             <div className="text-sm text-gray-600">{Math.round(progressPercent)}% complete</div>
-            <button onClick={next} className="px-4 py-2 rounded bg-saffron text-white flex items-center gap-2">{t('next')} <ArrowRight className="w-4 h-4" /></button>
+            <button onClick={next} className="px-4 py-2 rounded bg-saffron text-white flex items-center gap-2" aria-label="Next stage">{t('next')} <ArrowRight className="w-4 h-4" aria-hidden="true" /></button>
           </div>
         </footer>
       </div>

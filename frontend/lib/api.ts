@@ -1,4 +1,4 @@
-import axios, { AxiosInstance } from 'axios';
+import axios, { type AxiosError, type AxiosInstance, type AxiosRequestConfig, type AxiosResponse } from 'axios';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -12,28 +12,22 @@ export const apiClient: AxiosInstance = axios.create({
 
 // Add request interceptor for auth token
 apiClient.interceptors.request.use(
-  (config) => {
+  (config: AxiosRequestConfig) => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
-    if (token) {
+    if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error: AxiosError) => Promise.reject(error)
 );
 
 // Add response interceptor for error handling
 apiClient.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      // Handle unauthorized
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('authToken');
-        window.location.href = '/login';
-      }
+  (response: AxiosResponse) => response,
+  (error: AxiosError) => {
+    if (error.response?.status === 401 && typeof window !== 'undefined') {
+      localStorage.removeItem('authToken');
     }
     return Promise.reject(error);
   }
@@ -43,10 +37,8 @@ apiClient.interceptors.response.use(
 export const api = {
   // Chat APIs
   chat: {
-    sendMessage: (message: string) =>
-      apiClient.post('/api/chat/message', { message }),
-    getHistory: () =>
-      apiClient.get('/api/chat/history'),
+    sendMessage: (message: string) => apiClient.post('/api/chat/message', { message }),
+    getHistory: () => apiClient.get('/api/chat/history'),
   },
 
   // Quiz APIs
@@ -59,28 +51,22 @@ export const api = {
 
   // News APIs
   news: {
-    getLatest: (limit: number = 10) =>
-      apiClient.get(`/api/news/latest?limit=${limit}`),
+    getLatest: (limit: number = 10) => apiClient.get(`/api/news/latest?limit=${limit}`),
     searchNews: (query: string, limit: number = 10) =>
-      apiClient.get(`/api/news/search?q=${query}&limit=${limit}`),
+      apiClient.get(`/api/news/search?q=${encodeURIComponent(query)}&limit=${limit}`),
   },
 
   // User APIs
   user: {
-    getProfile: () =>
-      apiClient.get('/api/users/profile'),
-    updateProfile: (data: Record<string, any>) =>
-      apiClient.put('/api/users/profile', data),
-    getLeaderboard: (limit: number = 10) =>
-      apiClient.get(`/api/users/leaderboard?limit=${limit}`),
+    getProfile: () => apiClient.get('/api/users/profile'),
+    updateProfile: (data: Record<string, unknown>) => apiClient.put('/api/users/profile', data),
+    getLeaderboard: (limit: number = 10) => apiClient.get(`/api/users/leaderboard?limit=${limit}`),
   },
 
   // Forms APIs
   forms: {
-    getForms: () =>
-      apiClient.get('/api/forms/forms'),
-    getFormProcess: (formId: string) =>
-      apiClient.get(`/api/forms/process/${formId}`),
+    getForms: () => apiClient.get('/api/forms/forms'),
+    getFormProcess: (formId: string) => apiClient.get(`/api/forms/process/${formId}`),
   },
 };
 

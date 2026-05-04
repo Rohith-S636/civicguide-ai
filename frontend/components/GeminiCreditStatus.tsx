@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { AlertCircle, CheckCircle2, Clock } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Clock, RefreshCw } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 interface CreditStatus {
   requests_used: number;
@@ -22,47 +23,94 @@ export default function GeminiCreditStatus() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
+
     const fetchCreditStatus = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/credit-status`);
-        
+        setError(null);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/credit-status`, {
+          headers: { Accept: 'application/json' },
+        });
+
         if (!response.ok) {
           throw new Error('Failed to fetch credit status');
         }
 
-        const data = await response.json();
-        
-        if (data.success) {
-          setCreditStatus(data.data);
-        } else {
-          setError('Could not load credit information');
+        const data: { success?: boolean; data?: CreditStatus; error?: string } = await response.json();
+
+        if (!cancelled) {
+          if (data.success && data.data) {
+            setCreditStatus(data.data);
+          } else {
+            throw new Error(data.error || 'Could not load credit information');
+          }
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Error fetching credits');
-        console.error('Credit status error:', err);
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : 'Error fetching credits');
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     };
 
     fetchCreditStatus();
 
-    // Refresh every 5 minutes
     const interval = setInterval(fetchCreditStatus, 5 * 60 * 1000);
-
-    return () => clearInterval(interval);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
   }, []);
 
   if (loading) {
-    return null; // Don't show anything while loading
+    return (
+      <Card className="border border-slate-200 shadow-sm">
+        <CardHeader className="pb-3">
+          <Skeleton className="h-5 w-40" />
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <Skeleton className="h-2 w-full rounded-full" />
+          <Skeleton className="h-4 w-3/4" />
+          <Skeleton className="h-16 w-full" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card className="border border-amber-200 bg-amber-50 shadow-sm">
+        <CardHeader className="pb-3">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="h-5 w-5 text-amber-700" />
+            <CardTitle className="text-sm font-semibold text-amber-900">
+              AI API Credits unavailable
+            </CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-xs text-amber-800">{error}</p>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="inline-flex items-center gap-2 rounded-md border border-amber-300 bg-white px-3 py-2 text-xs font-medium text-amber-900 hover:bg-amber-100"
+          >
+            <RefreshCw className="h-4 w-4" />
+            Retry
+          </button>
+        </CardContent>
+      </Card>
+    );
   }
 
   if (!creditStatus) {
-    return null; // Don't show if no data available
+    return null;
   }
 
-  // Determine color based on status
   const getColorClass = () => {
     if (creditStatus.is_over_limit) {
       return 'bg-red-50 border-red-200';
@@ -106,7 +154,7 @@ export default function GeminiCreditStatus() {
   return (
     <Card className={`border ${getColorClass()} shadow-sm`}>
       <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             {getIconComponent()}
             <CardTitle className="text-sm font-semibold">
@@ -123,13 +171,12 @@ export default function GeminiCreditStatus() {
       </CardHeader>
 
       <CardContent className="space-y-3">
-        {/* Progress Bar */}
         <div className="space-y-1">
-          <div className="flex justify-between text-xs">
+          <div className="flex justify-between text-xs gap-3">
             <span className={getTextColor()}>
               {creditStatus.usage_percent.toFixed(1)}% Used
             </span>
-            <span className="text-slate-600">
+            <span className="text-slate-600 text-right">
               Resets: {creditStatus.reset_date}
             </span>
           </div>
@@ -141,12 +188,10 @@ export default function GeminiCreditStatus() {
           </div>
         </div>
 
-        {/* Status Message */}
         <p className={`text-xs ${getTextColor()}`}>
           {creditStatus.status_message}
         </p>
 
-        {/* Additional Info */}
         <div className="bg-white/50 rounded p-2 text-xs text-slate-600 space-y-1">
           <div className="flex items-start gap-2">
             <Clock className="h-4 w-4 flex-shrink-0 mt-0.5" />
@@ -165,7 +210,6 @@ export default function GeminiCreditStatus() {
           </div>
         </div>
 
-        {/* Over Limit Message */}
         {creditStatus.is_over_limit && (
           <div className="bg-red-100/50 rounded p-2 text-xs text-red-700 font-semibold">
             ⚠️ Your free tier limit has been reached. Service will resume on {creditStatus.reset_date}.

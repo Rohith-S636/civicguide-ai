@@ -29,6 +29,40 @@ import { Badge } from '@/components/ui/Badge';
 import { useChatStore, ChatMessage } from '@/store/useChatStore';
 import { useAuthStore } from '@/store/useAuthStore';
 
+interface SpeechRecognitionResultLike {
+  readonly transcript: string;
+}
+
+interface SpeechRecognitionResultList {
+  length: number;
+  [index: number]: SpeechRecognitionResultLike;
+}
+
+interface SpeechRecognitionEventLike {
+  resultIndex: number;
+  results: SpeechRecognitionResultList;
+}
+
+interface SpeechRecognitionErrorEventLike {
+  error: string;
+}
+
+interface SpeechRecognitionInstanceLike {
+  language: string;
+  continuous: boolean;
+  interimResults: boolean;
+  onstart: (() => void) | null;
+  onend: (() => void) | null;
+  onresult: ((event: SpeechRecognitionEventLike) => void) | null;
+  onerror: ((event: SpeechRecognitionErrorEventLike) => void) | null;
+  start: () => void;
+}
+
+interface SpeechRecognitionWindow extends Window {
+  webkitSpeechRecognition?: new () => SpeechRecognitionInstanceLike;
+  SpeechRecognition?: new () => SpeechRecognitionInstanceLike;
+}
+
 // Language configuration with flags
 const LANGUAGE_CONFIG = {
   en: { flag: '🇮🇳', label: 'English', code: 'en' },
@@ -150,6 +184,7 @@ const MessageBubble: React.FC<{
               onClick={onCopy}
               className="hover:text-gray-700 transition-colors"
               title="Copy message"
+              aria-label="Copy message"
             >
               <Copy className="w-4 h-4" />
             </button>
@@ -310,6 +345,9 @@ export default function ChatPage() {
   const [inputValue, setInputValue] = useState('');
   const [characterCount, setCharacterCount] = useState(0);
   const [isListening, setIsListening] = useState(false);
+  const [cooldownUntil, setCooldownUntil] = useState<number | null>(null);
+  const [rapidMessageTimestamps, setRapidMessageTimestamps] = useState<number[]>([]);
+  const [rateLimitMessage, setRateLimitMessage] = useState<string | null>(null);
 
   // Initialize session on mount
   useEffect(() => {
@@ -322,6 +360,20 @@ export default function ChatPage() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [currentSession?.messages, isTyping]);
+
+  useEffect(() => {
+    if (!cooldownUntil) {
+      return;
+    }
+
+    const timeout = window.setTimeout(() => {
+      setCooldownUntil(null);
+      setRateLimitMessage(null);
+      setRapidMessageTimestamps([]);
+    }, Math.max(0, cooldownUntil - Date.now()));
+
+    return () => window.clearTimeout(timeout);
+  }, [cooldownUntil]);
 
   // Handle input change
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -338,12 +390,14 @@ export default function ChatPage() {
 
   // Voice input handler
   const handleVoiceInput = useCallback(() => {
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    const speechWindow = window as SpeechRecognitionWindow;
+    const SpeechRecognition = speechWindow.webkitSpeechRecognition || speechWindow.SpeechRecognition;
+
+    if (!SpeechRecognition) {
       toast.error('Speech recognition not supported in this browser');
       return;
     }
 
-    const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
     const recognition = new SpeechRecognition();
 
     recognition.language = language === 'hi' ? 'hi-IN' : language === 'te' ? 'te-IN' : language === 'ta' ? 'ta-IN' : 'en-IN';
@@ -359,10 +413,10 @@ export default function ChatPage() {
       setIsListening(false);
     };
 
-    recognition.onresult = (event: any) => {
+    recognition.onresult = (event: SpeechRecognitionEventLike) => {
       let transcript = '';
       for (let i = event.resultIndex; i < event.results.length; i++) {
-        transcript += event.results[i][0].transcript;
+        transcript += event.results[i].transcript;
       }
       if (transcript) {
         setInputValue(transcript);
@@ -370,7 +424,7 @@ export default function ChatPage() {
       }
     };
 
-    recognition.onerror = (event: any) => {
+    recognition.onerror = (event: SpeechRecognitionErrorEventLike) => {
       toast.error(`Speech recognition error: ${event.error}`);
       setIsListening(false);
     };
@@ -383,6 +437,26 @@ export default function ChatPage() {
     if (!inputValue.trim() || isLoading || !currentSession) {
       return;
     }
+
+    const now = Date.now();
+    const recentRapidMessages = rapidMessageTimestamps.filter((timestamp) => now - timestamp < 30000);
+
+    if (cooldownUntil && now < cooldownUntil) {
+      setRateLimitMessage('Please wait a moment before sending another message.');
+      toast.error('Please wait a moment before sending another message.');
+      return;
+    }
+
+    if (recentRapidMessages.length >= 3) {
+      const nextCooldown = now + 30000;
+      setCooldownUntil(nextCooldown);
+      setRateLimitMessage('Please wait 30 seconds before sending another message.');
+      toast.error('Please wait 30 seconds before sending another message.');
+      return;
+    }
+
+    setRapidMessageTimestamps([...recentRapidMessages, now]);
+    setRateLimitMessage(null);
 
     const messageContent = inputValue.trim();
     setInputValue('');
@@ -480,12 +554,14 @@ export default function ChatPage() {
       });
 
       setError(null);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setTyping(false);
       const errorMessage =
-        err.response?.data?.detail ||
-        err.message ||
-        'Failed to get response. Please try again.';
+        axios.isAxiosError(err)
+          ? err.response?.data?.detail || err.message || 'Failed to get response. Please try again.'
+          : err instanceof Error
+          ? err.message
+          : 'Failed to get response. Please try again.';
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -545,6 +621,7 @@ export default function ChatPage() {
             <button
               onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
               className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              aria-label={isMobileSidebarOpen ? 'Close sidebar' : 'Open sidebar'}
             >
               {isMobileSidebarOpen ? (
                 <X className="w-6 h-6" />
@@ -624,7 +701,7 @@ export default function ChatPage() {
         <div className="border-t border-gray-200 bg-white p-4 sm:p-6 lg:p-8">
           <div className="max-w-6xl mx-auto space-y-4">
             {/* Character counter and actions */}
-            <div className="flex items-center justify-between text-xs text-gray-500">
+            <div className="flex items-center justify-between text-xs text-gray-500 gap-3 flex-wrap">
               <span>
                 {characterCount} / 500 characters
               </span>
@@ -632,11 +709,17 @@ export default function ChatPage() {
                 onClick={handleClearChat}
                 className="flex items-center gap-1 hover:text-gray-700 transition-colors"
                 title="Clear chat history"
+                aria-label="Clear chat history"
               >
                 <Trash2 className="w-4 h-4" />
                 Clear
               </button>
             </div>
+            {rateLimitMessage && (
+              <p className="text-xs font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-2">
+                {rateLimitMessage}
+              </p>
+            )}
 
             {/* Input and buttons */}
             <div className="flex gap-3 items-end">
@@ -652,7 +735,8 @@ export default function ChatPage() {
                     }
                   }}
                   placeholder={`Ask about elections, voting, or civics in ${LANGUAGE_CONFIG[language].label}...`}
-                  disabled={isLoading}
+                  disabled={isLoading || Boolean(rateLimitMessage)}
+                  aria-label="Ask CivicGuide AI a question"
                   maxLength={500}
                   className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-saffron focus:outline-none focus:ring-1 focus:ring-saffron transition-all disabled:bg-gray-50 disabled:cursor-not-allowed"
                 />
@@ -663,13 +747,14 @@ export default function ChatPage() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleVoiceInput}
-                disabled={isLoading || isListening}
+                disabled={isLoading || isListening || Boolean(rateLimitMessage)}
                 className={`p-3 rounded-lg transition-all ${
                   isListening
                     ? 'bg-red-500 text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 } disabled:opacity-50 disabled:cursor-not-allowed`}
                 title="Voice input"
+                aria-label="Voice input"
               >
                 <Mic className={`w-5 h-5 ${isListening ? 'animate-pulse' : ''}`} />
               </motion.button>
@@ -679,9 +764,10 @@ export default function ChatPage() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleSendMessage}
-                disabled={!inputValue.trim() || isLoading}
+                disabled={!inputValue.trim() || isLoading || Boolean(rateLimitMessage)}
                 className="p-3 rounded-lg bg-gradient-civic text-white hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-civic-md"
                 title="Send message (Enter)"
+                aria-label="Send message"
               >
                 <Send className={`w-5 h-5 ${isLoading ? 'animate-pulse' : ''}`} />
               </motion.button>

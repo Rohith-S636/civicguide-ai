@@ -1,0 +1,19 @@
+{
+  "name": "CivicGuide AI",
+  "short_name": "CivicGuide",
+  "description": "Learn about Indian elections, civic engagement, and democracy with AI",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#FF9933",
+  "lang": "en-IN",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

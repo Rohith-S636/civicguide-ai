@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter, Noto_Sans, Noto_Sans_Devanagari, Noto_Sans_Tamil, Noto_Sans_Telugu } from 'next/font/google';
 import { Toaster } from 'sonner';
+import AppBootstrap from '@/components/AppBootstrap';
 import './globals.css';
 
 const inter = Inter({
@@ -39,6 +40,7 @@ const notoTelugu = Noto_Sans_Telugu({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://civicguide-ai.vercel.app'),
   title: {
     default: 'CivicGuide AI - Learn About Indian Elections',
     template: '%s | CivicGuide AI',
@@ -49,18 +51,35 @@ export const metadata: Metadata = {
   creator: 'CivicGuide',
   publisher: 'CivicGuide',
   robots: 'index, follow',
+  alternates: {
+    canonical: '/',
+  },
+  manifest: '/manifest.webmanifest',
+  icons: {
+    icon: '/icon.svg',
+    apple: '/apple-touch-icon.svg',
+  },
   openGraph: {
     type: 'website',
     locale: 'en_IN',
-    url: 'https://civicguide.ai',
+    url: '/',
     title: 'CivicGuide AI - Learn About Indian Elections',
     description: 'Master Indian elections, civic engagement, and democratic processes.',
     siteName: 'CivicGuide AI',
+    images: [
+      {
+        url: '/opengraph-image',
+        width: 1200,
+        height: 630,
+        alt: 'CivicGuide AI',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'CivicGuide AI',
     description: 'Learn about Indian elections and civic engagement with AI.',
+    images: ['/twitter-image'],
   },
 };
 
@@ -81,6 +100,7 @@ export default function RootLayout({
         <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%23FF9933' width='33.33' height='100'/><rect fill='%23FFFFFF' x='33.33' width='33.33' height='100'/><rect fill='%23138808' x='66.66' width='33.34' height='100'/></svg>" />
       </head>
       <body className="bg-civic-light text-civic-dark">
+        <AppBootstrap />
         <div className="flex h-screen overflow-hidden">
           {/* Sidebar Navigation */}
           <aside className="w-64 border-r border-gray-200 bg-white shadow-sm hidden md:block">

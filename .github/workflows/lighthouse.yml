@@ -29,7 +29,12 @@ jobs:
       - name: Start Next.js (standalone) server
         working-directory: frontend
         run: |
-          npx next start -p 3000 &
+          # Copy public folder to standalone build if it exists
+          if [ -d public ]; then
+            cp -r public .next/standalone/public
+          fi
+          PORT=3000 node .next/standalone/server.js &
+          sleep 2
           npx wait-on http://localhost:3000 --timeout 120000
 
       - name: Run LHCI autorun

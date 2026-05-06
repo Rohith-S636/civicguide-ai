@@ -1,34 +1,50 @@
 from __future__ import annotations
 from typing import List, Optional
 from pydantic import BaseModel, Field
+from datetime import datetime
 
+
+# ============================================================================
+# CHAT MODELS
+# ============================================================================
 
 class ChatMessage(BaseModel):
-    role: str = Field(..., description="user|ai")
+    """Single chat message"""
+    role: str = Field(..., description="user|model")
     content: str
 
 
 class ChatRequest(BaseModel):
+    """Chat API request"""
     message: str
-    language: Optional[str] = Field('en')
-    session_id: Optional[str]
+    language: Optional[str] = Field(default='en', description="en|hi|te|ta|kn")
+    session_id: Optional[str] = None
     history: Optional[List[ChatMessage]] = Field(default_factory=list)
 
 
 class ChatResponse(BaseModel):
+    """Chat API response"""
     reply: str
     xp_earned: int = 0
     references: List[str] = Field(default_factory=list)
+    credit_status: Optional[dict] = None
+    session_id: Optional[str] = None
 
+
+# ============================================================================
+# QUIZ MODELS
+# ============================================================================
 
 class QuizRequest(BaseModel):
+    """Quiz generation request"""
     topic: Optional[str] = None
-    difficulty: Optional[str] = Field('beginner')
-    language: Optional[str] = Field('en')
-    count: Optional[int] = Field(10, ge=1, le=50)
+    difficulty: Optional[str] = Field(default='beginner', description="beginner|student|exam")
+    language: Optional[str] = Field(default='en', description="en|hi|te|ta|kn")
+    count: Optional[int] = Field(default=10, ge=1, le=50)
 
 
 class QuizQuestion(BaseModel):
+    """Quiz question"""
     question: str
     options: List[str]
     correct_index: int
@@ -36,48 +52,78 @@ class QuizQuestion(BaseModel):
     category: Optional[str] = None
 
 
-class NewsItem(BaseModel):
-    title: str
-    summary: Optional[str]
-    date: Optional[str]
-    source: Optional[str]
-    url: Optional[str]
-    category: Optional[str]
+class QuizScore(BaseModel):
+    """Quiz score record"""
+    quiz_id: Optional[str] = None
+    score: int
+    date: Optional[str] = None
+    topic: Optional[str] = None
+    difficulty: Optional[str] = None
 
+
+# ============================================================================
+# NEWS MODELS
+# ============================================================================
+
+class NewsItem(BaseModel):
+    """News article"""
+    title: str
+    summary: Optional[str] = None
+    date: Optional[str] = None
+    source: Optional[str] = None
+    url: Optional[str] = None
+    category: Optional[str] = None
+
+
+# ============================================================================
+# FORMS MODELS
+# ============================================================================
 
 class FormInfo(BaseModel):
+    """Government form information"""
     form_id: str
     name: str
-    purpose: Optional[str]
-    url: Optional[str]
+    purpose: Optional[str] = None
+    url: Optional[str] = None
     procedure_steps: List[str] = Field(default_factory=list)
     required_docs: List[str] = Field(default_factory=list)
 
 
-class QuizScore(BaseModel):
-    quiz_id: Optional[str]
-    score: int
-    date: Optional[str]
+# ============================================================================
+# USER MODELS
+# ============================================================================
+
+class UserProfile(BaseModel):
+    """User profile"""
+    id: str
+    email: str
+    username: str
+    xp: int = 0
+    level: int = 1
+    badges: List[str] = Field(default_factory=list)
+    language: str = "en"
+    streak: int = 0
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+
+
+class UserUpdate(BaseModel):
+    """User profile update"""
+    username: Optional[str] = None
+    email: Optional[str] = None
+    language: Optional[str] = None
 
 
 class UserProgress(BaseModel):
+    """User progress and gamification data"""
     user_id: str
     xp: int = 0
-    level: Optional[int] = 1
+    level: int = 1
     badges: List[str] = Field(default_factory=list)
     quiz_scores: List[QuizScore] = Field(default_factory=list)
-    streak: Optional[int] = 0
-from pydantic import BaseModel
-from typing import Optional, List
-from datetime import datetime
+    streak: int = 0
+    last_active: Optional[datetime] = None
 
-# Chat Models
-class ChatMessage(BaseModel):
-    message: str
-    user_id: Optional[str] = None
-
-class ChatResponse(BaseModel):
-    response: str
     sources: Optional[List[str]] = None
     timestamp: datetime
 

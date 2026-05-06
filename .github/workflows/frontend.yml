@@ -1,0 +1,118 @@
+name: Frontend Tests & Deployment
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/frontend.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'frontend/**'
+
+jobs:
+  # ============================================================================
+  # BUILD & TEST JOB
+  # ============================================================================
+  build:
+    runs-on: ubuntu-latest
+    name: Build & Test Frontend
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'frontend/package-lock.json'
+      
+      - name: Install dependencies
+        run: |
+          cd frontend
+          npm ci
+      
+      - name: Lint code
+        run: |
+          cd frontend
+          npm run lint
+      
+      - name: Type check
+        run: |
+          cd frontend
+          npm run type-check
+      
+      - name: Build application
+        run: |
+          cd frontend
+          npm run build
+        env:
+          NEXT_PUBLIC_API_URL: https://civicguide-api.onrender.com
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+  
+  # ============================================================================
+  # SECURITY SCAN JOB
+  # ============================================================================
+  security:
+    runs-on: ubuntu-latest
+    name: Security & Performance Scan
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'frontend/package-lock.json'
+      
+      - name: Install dependencies
+        run: |
+          cd frontend
+          npm ci
+      
+      - name: Security audit
+        run: |
+          cd frontend
+          npm audit --production || true
+      
+      - name: Check for vulnerable dependencies
+        run: |
+          cd frontend
+          npm install -g snyk
+          snyk auth ${{ secrets.SNYK_TOKEN }} || true
+          snyk test || true
+  
+  # ============================================================================
+  # DEPLOYMENT JOB (only on main branch)
+  # ============================================================================
+  deploy:
+    needs: [build, security]
+    runs-on: ubuntu-latest
+    name: Deploy to Vercel
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Deploy to Vercel
+        run: |
+          npm install -g vercel
+          vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} \
+            --build-env NEXT_PUBLIC_API_URL=https://civicguide-api.onrender.com \
+            --build-env NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }} \
+            --build-env NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+        working-directory: ./frontend
+      
+      - name: Wait for deployment
+        run: sleep 30
+      
+      - name: Verify deployment
+        run: |
+          curl -f https://civicguide-ai.vercel.app/ || exit 1
+        timeout-minutes: 5
+

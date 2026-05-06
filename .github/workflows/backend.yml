@@ -1,0 +1,114 @@
+name: Backend Tests & Deployment
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'backend/**'
+
+jobs:
+  # ============================================================================
+  # TEST JOB
+  # ============================================================================
+  test:
+    runs-on: ubuntu-latest
+    name: Test Python Backend
+    
+    strategy:
+      matrix:
+        python-version: ['3.10', '3.11']
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+          pip install pytest pytest-asyncio pytest-cov
+      
+      - name: Lint with pylint
+        run: |
+          pip install pylint
+          pylint backend/ --fail-under=7.0 --disable=C0111,R0913 || true
+      
+      - name: Type check with mypy
+        run: |
+          pip install mypy
+          mypy backend/ --ignore-missing-imports || true
+      
+      - name: Run tests with pytest
+        run: |
+          pytest backend/tests/ -v --cov=backend --cov-report=xml
+        env:
+          ENVIRONMENT: testing
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+      
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.xml
+          fail_ci_if_error: false
+  
+  # ============================================================================
+  # SECURITY SCAN JOB
+  # ============================================================================
+  security:
+    runs-on: ubuntu-latest
+    name: Security Scan
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install security tools
+        run: |
+          pip install bandit safety
+      
+      - name: Run bandit security scan
+        run: bandit -r backend/ -f json -o bandit-report.json || true
+      
+      - name: Check dependencies for vulnerabilities
+        run: safety check --json > safety-report.json || true
+  
+  # ============================================================================
+  # DEPLOYMENT JOB (only on main branch)
+  # ============================================================================
+  deploy:
+    needs: [test, security]
+    runs-on: ubuntu-latest
+    name: Deploy to Render
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Deploy to Render
+        run: |
+          curl https://api.render.com/deploy/srv-${{ secrets.RENDER_SERVICE_ID }}?key=${{ secrets.RENDER_API_KEY }}
+      
+      - name: Wait for deployment
+        run: sleep 30
+      
+      - name: Health check
+        run: |
+          curl -f https://civicguide-api.onrender.com/health || exit 1
+        timeout-minutes: 5
+

@@ -20,12 +20,38 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-origins = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "https://civicguide-ai.vercel.app",
-    os.getenv("FRONTEND_URL", "https://civicguide-ai.vercel.app"),
-]
+# Validate required environment variables
+REQUIRED_ENV_VARS = ["GOOGLE_API_KEY", "SUPABASE_URL", "SUPABASE_ANON_KEY"]
+OPTIONAL_ENV_VARS = ["TAVILY_API_KEY", "SUPABASE_SERVICE_KEY"]
+
+def validate_environment():
+    """Validate that required environment variables are set."""
+    missing_vars = []
+    for var in REQUIRED_ENV_VARS:
+        if not os.getenv(var):
+            missing_vars.append(var)
+    
+    if missing_vars:
+        logger.error(f"❌ Missing required environment variables: {', '.join(missing_vars)}")
+        raise RuntimeError(f"Missing required env vars: {', '.join(missing_vars)}")
+    
+    logger.info(f"✓ All required environment variables configured")
+    for var in OPTIONAL_ENV_VARS:
+        status = "✓" if os.getenv(var) else "⚠"
+        logger.info(f"{status} {var}: {'configured' if os.getenv(var) else 'not configured'}")
+
+validate_environment()
+
+# Environment-specific CORS configuration
+ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
+if ENVIRONMENT == "production":
+    origins = [os.getenv("FRONTEND_URL", "https://civicguide-ai.vercel.app")]
+else:
+    origins = [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        os.getenv("FRONTEND_URL", "https://civicguide-ai.vercel.app"),
+    ]
 
 limiter = Limiter(key_func=get_remote_address, default_limits=["30/minute"])
 
@@ -61,10 +87,10 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-    expose_headers=["*"],
-    max_age=600,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization", "X-CSRF-Token"],
+    expose_headers=["X-Total-Count"],
+    max_age=3600,
 )
 
 app.include_router(chat.router, prefix="/api/chat", tags=["chat"])
@@ -77,13 +103,25 @@ app.include_router(gamification_router)
 
 @app.get("/health")
 async def health() -> dict[str, object]:
-    return {
+    """Health check endpoint verifying all critical services."""
+    health_status = {
         "status": "ok",
         "ai_provider": "Google Gemini",
         "model": os.getenv("GEMINI_MODEL", "gemini-1.5-flash"),
         "environment": os.getenv("ENVIRONMENT", "development"),
         "api_configured": bool(os.getenv("GOOGLE_API_KEY")),
+        "database_configured": bool(os.getenv("SUPABASE_URL")),
+        "services": {
+            "gemini": "✓" if os.getenv("GOOGLE_API_KEY") else "✗",
+            "supabase": "✓" if os.getenv("SUPABASE_URL") else "✗",
+        }
     }
+    
+    # Check if any critical service is missing
+    if not all([os.getenv("GOOGLE_API_KEY"), os.getenv("SUPABASE_URL")]):
+        health_status["status"] = "degraded"
+    
+    return health_status
 
 
 @app.get("/api/credit-status")

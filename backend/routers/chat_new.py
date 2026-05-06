@@ -19,6 +19,7 @@ import asyncio
 
 from agents.election_agent import run_election_agent
 from utils.gemini import generate_chat_response, stream_chat_response, get_credit_status
+from utils.validation import ChatInputValidator, validate_language
 
 logger = logging.getLogger(__name__)
 
@@ -59,7 +60,7 @@ class ChatResponse(BaseModel):
 @router.post("/", response_model=ChatResponse)
 async def chat(request: ChatRequest, background_tasks: BackgroundTasks):
     """
-    Non-streaming chat endpoint.
+    Non-streaming chat endpoint with full input validation.
     
     Returns:
       - reply: AI-generated response
@@ -69,33 +70,37 @@ async def chat(request: ChatRequest, background_tasks: BackgroundTasks):
       - session_id: For conversation continuity
     """
     try:
-        # Validate input
-        if not request.message or len(request.message.strip()) == 0:
-            raise HTTPException(status_code=400, detail="Message cannot be empty")
-
-        if len(request.message) > 2000:
-            raise HTTPException(status_code=400, detail="Message too long (max 2000 chars)")
+        # Validate input using dedicated validator
+        try:
+            validated = ChatInputValidator.validate(
+                message=request.message,
+                language=request.language or 'en',
+                session_id=request.session_id,
+            )
+        except ValueError as e:
+            logger.warning(f"Input validation failed: {str(e)}")
+            raise HTTPException(status_code=400, detail=f"Invalid input: {str(e)}")
 
         # Build conversation history in Gemini format
         history = request.history or []
 
         # Use agent if requested, otherwise use simple chat
         if request.use_agent:
-            logger.info(f"🤖 Using ReAct agent for: {request.message[:100]}")
+            logger.info(f"🤖 Using ReAct agent for: {validated['message'][:100]}")
             result = await run_election_agent(
-                message=request.message,
-                language=request.language,
+                message=validated['message'],
+                language=validated['language'],
             )
             reply = result.get("reply", "")
             references = result.get("references", [])
             xp = result.get("xp_earned", 5)
         else:
             # Simple chat without agent
-            logger.info(f"💬 Chat: {request.message[:100]} ({request.language})")
+            logger.info(f"💬 Chat: {validated['message'][:100]} ({validated['language']})")
             reply, status = await generate_chat_response(
-                message=request.message,
+                message=validated['message'],
                 history=history,
-                language=request.language,
+                language=validated['language'],
                 model_choice="flash",
             )
             references = []
@@ -107,10 +112,10 @@ async def chat(request: ChatRequest, background_tasks: BackgroundTasks):
         # Log to backend (background task)
         background_tasks.add_task(
             log_chat_interaction,
-            session_id=request.session_id,
-            message=request.message,
+            session_id=validated['session_id'],
+            message=validated['message'],
             reply=reply,
-            language=request.language,
+            language=validated['language'],
             use_agent=request.use_agent,
         )
 
@@ -119,13 +124,13 @@ async def chat(request: ChatRequest, background_tasks: BackgroundTasks):
             xp_earned=xp,
             references=references,
             credit_status=credit_status,
-            session_id=request.session_id,
+            session_id=validated['session_id'],
         )
 
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ Chat error: {e}")
+        logger.error(f"❌ Chat error: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Chat failed: {str(e)}")
 
 

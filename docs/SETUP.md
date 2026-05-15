@@ -17,8 +17,9 @@ pip install -r requirements.txt
 ### 2. Configure Environment Variables
 Create a `.env` file in the `backend/` directory:
 ```
-ANTHROPIC_API_KEY=your_claude_api_key
+GOOGLE_API_KEY=your_gemini_api_key
 SUPABASE_URL=your_supabase_url
+SUPABASE_ANON_KEY=your_anon_key
 SUPABASE_SERVICE_KEY=your_service_key
 TAVILY_API_KEY=your_tavily_key
 ```
@@ -33,7 +34,7 @@ The API will be available at `http://localhost:8000`
 
 ### 1. Install Dependencies
 ```bash
-Cd frontend
+cd frontend
 npm install
 ```
 

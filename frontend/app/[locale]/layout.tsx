@@ -46,9 +46,7 @@ export default async function LocaleLayout({
         <div className="sticky top-0 z-30 flex justify-end px-4 pt-4">
           <LanguageSwitcher />
         </div>
-        <div className="pb-6">
-          {children}
-        </div>
+        <div className="pb-6">{children}</div>
       </div>
     </NextIntlClientProvider>
   );

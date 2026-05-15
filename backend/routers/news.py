@@ -623,6 +623,18 @@ async def get_latest_news(limit: int = Query(10, ge=1, le=50)) -> List[Dict[str,
         raise HTTPException(status_code=500, detail=f"Error fetching news: {str(e)}")
 
 
+@router.get("/latest", response_model=List[Dict[str, Any]])
+async def get_latest_news_alias(limit: int = Query(10, ge=1, le=50)) -> List[Dict[str, Any]]:
+    """
+    Get latest ECI news items (explicit /latest endpoint). Results cached for 1 hour.
+    """
+    try:
+        news = await fetch_and_summarize_eci_news()
+        return news[:limit]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching news: {str(e)}")
+
+
 @router.get("/announcements", response_model=List[Dict[str, Any]])
 async def get_announcements(limit: int = Query(10, ge=1, le=50)) -> List[Dict[str, Any]]:
     """
